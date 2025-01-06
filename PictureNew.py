@@ -22,6 +22,8 @@ class DrawingApp:
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
 
+        self.memory_color = []   # список - ячейка памяти - сохраняет цвет кисти
+
 
     def setup_ui(self):
         control_frame = tk.Frame(self.root)
@@ -39,11 +41,17 @@ class DrawingApp:
         # Метка рядом с кнопкой выбора размера кисти
         size_brush_button = tk.Label(control_frame, text="Размер кисти")
         size_brush_button.pack(side=tk.LEFT)
+        self.brush_size_menu(control_frame)
 
         #self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         #self.brush_size_scale.pack(side=tk.LEFT)
 
-        self.brush_size_menu(control_frame)
+        rubber_button = tk.Label(control_frame, text="Ластик")   # Метка рядом с ячейкой состояния ластика
+        rubber_button.pack(side=tk.LEFT)
+        self.var = tk.BooleanVar()           # Вспомогательная переменная для описания состояния ластика
+        #   Ячейка состояния ластика - включено или выключено
+        rubber_button = tk.Checkbutton(control_frame, text="", variable=self.var, command=self.rubber)
+        rubber_button.pack(side=tk.LEFT)
 
     def paint(self, event):
         if self.last_x and self.last_y:
@@ -66,6 +74,8 @@ class DrawingApp:
 
     def choose_color(self):
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
+        # Запоминаем значение цвета кисти, к нему можно вернуться после выключения ластика
+        self.memory_color.append(self.pen_color)
 
     def save_image(self):
         file_path = filedialog.asksaveasfilename(filetypes=[('PNG files', '*.png')])
@@ -90,6 +100,18 @@ class DrawingApp:
         Вспомогательная функция обновляет размер кисти
         '''
         self.brush_size.set(value)
+
+    def rubber(self):
+        '''
+        Режим ластика
+        Если ластик "включен" вспомогательная переменная возвращает True, цвету кисти приваивается
+        значение белого цвета, как общий фон. Если ластик "выключен", цвету кисти присваивается
+        последнее значение, которое было перед использованием ластика - из списка - ячейки памяти
+        '''
+        if self.var.get():
+            self.pen_color = 'white'
+        else:
+            self.pen_color = self.memory_color[-1]
 
 
 def main():
