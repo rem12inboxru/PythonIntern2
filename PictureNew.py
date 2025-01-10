@@ -21,6 +21,7 @@ class DrawingApp:
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
+        self.canvas.bind('<Button-3>', self.pick_color)
 
         self.memory_color = []   # список - ячейка памяти - сохраняет цвет кисти
 
@@ -112,6 +113,21 @@ class DrawingApp:
             self.pen_color = 'white'
         else:
             self.pen_color = self.memory_color[-1]
+
+
+    def pick_color(self, event):
+        '''
+        Функциональный инструмент в виде пипетки для выбора цвета из любой точки на палитре.
+        '''
+        z = self.image.getpixel((event.x, event.y))  # определяем цвет в нужной точке палитры
+        self.pen_color = self.rgb_to_hex(z)          # присваиваем цвету кисти цвет нужной точки на палитре в шестнадцатеричном коде.
+
+    # Вспомогательная функция для преобразования кода цвета из RGB в шестнадцатеричный
+    def rgb_to_hex(self, rgb):
+        return '#%02x%02x%02x' % rgb
+
+
+
 
 
 def main():
