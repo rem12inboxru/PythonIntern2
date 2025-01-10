@@ -21,7 +21,7 @@ class DrawingApp:
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
-        self.canvas.bind('<Button-3>', self.pick_color)
+        self.canvas.bind('<Button-3>', self.pick_color)  # привязка функции выбора цвета с палитры к правой кнопке мыши.
 
         self.memory_color = []   # список - ячейка памяти - сохраняет цвет кисти
 
