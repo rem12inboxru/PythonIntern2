@@ -23,6 +23,9 @@ class DrawingApp:
         self.canvas.bind('<ButtonRelease-1>', self.reset)
         self.canvas.bind('<Button-3>', self.pick_color)  # привязка функции выбора цвета с палитры к правой кнопке мыши.
 
+        self.root.bind('<Control-s>', self.save_image)   # горячая клавиша для сохранения
+        self.root.bind('<Control-c>', self.choose_color)   # горячая клавиша вызова меню выбора цвета
+
         self.memory_color = []   # список - ячейка памяти - сохраняет цвет кисти
 
 
@@ -73,12 +76,12 @@ class DrawingApp:
         self.image = Image.new("RGB", (600, 400), "white")
         self.draw = ImageDraw.Draw(self.image)
 
-    def choose_color(self):
+    def choose_color(self, event=None):
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         # Запоминаем значение цвета кисти, к нему можно вернуться после выключения ластика
         self.memory_color.append(self.pen_color)
 
-    def save_image(self):
+    def save_image(self, event=None):
         file_path = filedialog.asksaveasfilename(filetypes=[('PNG files', '*.png')])
         if file_path:
             if not file_path.endswith('.png'):
