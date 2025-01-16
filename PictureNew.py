@@ -14,20 +14,22 @@ class DrawingApp:
         self.canvas = tk.Canvas(root, width=600, height=400, bg='white')
         self.canvas.pack()
 
-        self.setup_ui()
+        #self.setup_ui()
 
         self.last_x, self.last_y = None, None
         self.pen_color = 'black'
+        self.palette_color = 'white'   # начальный цвет палитры
+
+        self.setup_ui()
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
         self.canvas.bind('<Button-3>', self.pick_color)  # привязка функции выбора цвета с палитры к правой кнопке мыши.
 
-        self.root.bind('<Control-s>', self.save_image)   # горячая клавиша для сохранения
-        self.root.bind('<Control-c>', self.choose_color)   # горячая клавиша вызова меню выбора цвета
+        self.root.bind('<Control-s>', self.save_image)  # горячая клавиша для сохранения
+        self.root.bind('<Control-c>', self.choose_color)  # горячая клавиша вызова меню выбора цвета
 
-        self.memory_color = []   # список - ячейка памяти - сохраняет цвет кисти
-
+        self.memory_color = []  # список - ячейка памяти - сохраняет цвет кисти
 
     def setup_ui(self):
         control_frame = tk.Frame(self.root)
@@ -50,12 +52,17 @@ class DrawingApp:
         #self.brush_size_scale = tk.Scale(control_frame, from_=1, to=10, orient=tk.HORIZONTAL)
         #self.brush_size_scale.pack(side=tk.LEFT)
 
-        rubber_button = tk.Label(control_frame, text="Ластик")   # Метка рядом с ячейкой состояния ластика
+        rubber_button = tk.Label(control_frame, text="Ластик")  # Метка рядом с ячейкой состояния ластика
         rubber_button.pack(side=tk.LEFT)
-        self.var = tk.BooleanVar()           # Вспомогательная переменная для описания состояния ластика
+        self.var = tk.BooleanVar()  # Вспомогательная переменная для описания состояния ластика
         #   Ячейка состояния ластика - включено или выключено
         rubber_button = tk.Checkbutton(control_frame, text="", variable=self.var, command=self.rubber)
         rubber_button.pack(side=tk.LEFT)
+
+        # палитра расположена в нижней части "холста"
+        self.palette = tk.Label(self.root, text='Палитра для просмотра цвета кисти', bg=self.palette_color , width=86,
+                           height=2)
+        self.palette.pack(side=tk.LEFT)
 
     def paint(self, event):
         if self.last_x and self.last_y:
@@ -80,6 +87,7 @@ class DrawingApp:
         self.pen_color = colorchooser.askcolor(color=self.pen_color)[1]
         # Запоминаем значение цвета кисти, к нему можно вернуться после выключения ластика
         self.memory_color.append(self.pen_color)
+        self.update_palette()
 
     def save_image(self, event=None):
         file_path = filedialog.asksaveasfilename(filetypes=[('PNG files', '*.png')])
@@ -89,13 +97,12 @@ class DrawingApp:
             self.image.save(file_path)
             messagebox.showinfo("Информация", "Изображение успешно сохранено!")
 
-
     def brush_size_menu(self, x):
         '''
         Функция создает меню для выбора ширины кисти
         '''
         sizes = [1, 2, 3, 5, 7, 10, 15]
-        self.brush_size = tk.IntVar(value= 1)
+        self.brush_size = tk.IntVar(value=1)
         self.menu = tk.OptionMenu(x, self.brush_size, *sizes, command=self.update_brush_size)
         self.menu.pack(side=tk.LEFT)
 
@@ -117,20 +124,21 @@ class DrawingApp:
         else:
             self.pen_color = self.memory_color[-1]
 
-
     def pick_color(self, event):
         '''
         Функциональный инструмент в виде пипетки для выбора цвета из любой точки на палитре.
         '''
         z = self.image.getpixel((event.x, event.y))  # определяем цвет в нужной точке палитры
-        self.pen_color = self.rgb_to_hex(z)          # присваиваем цвету кисти цвет нужной точки на палитре в шестнадцатеричном коде.
+        self.pen_color = self.rgb_to_hex(z)
+        # присваиваем цвету кисти цвет нужной точки на палитре в шестнадцатеричном коде.
 
     # Вспомогательная функция для преобразования кода цвета из RGB в шестнадцатеричный
     def rgb_to_hex(self, rgb):
         return '#%02x%02x%02x' % rgb
 
-
-
+    # функция согласования цвета на палитре с выбранным цветом
+    def update_palette(self):
+        self.palette_color = self.palette.config(bg=self.pen_color)
 
 
 def main():
