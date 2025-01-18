@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog, messagebox
+from tkinter import colorchooser, filedialog, messagebox, simpledialog
 from PIL import Image, ImageDraw
 
 
@@ -58,6 +58,10 @@ class DrawingApp:
         #   Ячейка состояния ластика - включено или выключено
         rubber_button = tk.Checkbutton(control_frame, text="", variable=self.var, command=self.rubber)
         rubber_button.pack(side=tk.LEFT)
+
+        # Кнопка для вызова меню выбора размеров холста
+        win_size_button = tk.Button(control_frame, text="Выбор размера холста", command=self.window_size)
+        win_size_button.pack(side=tk.LEFT)
 
         # палитра расположена в нижней части "холста"
         self.palette = tk.Label(self.root, text='Палитра для просмотра цвета кисти', bg=self.palette_color , width=86,
@@ -139,6 +143,20 @@ class DrawingApp:
     # функция согласования цвета на палитре с выбранным цветом
     def update_palette(self):
         self.palette_color = self.palette.config(bg=self.pen_color)
+
+
+    def window_size(self):
+        '''
+        Функция открывает последовательно два диалоговых окна в которых
+        запрашивает у пользователя желаемые размеры высоты и ширины холста.
+        Потом создает новый холст с указанными размерами.
+        '''
+        new_height = simpledialog.askinteger('Размер холста', 'Введите высоту холста: ')
+        new_width = simpledialog.askinteger('Размер холста','Введите ширину холста:  ')
+        self.canvas.config(width= new_width, height= new_height)
+        self.image = Image.new("RGB", (new_width, new_height), "white")
+        self.draw = ImageDraw.Draw(self.image)
+
 
 
 def main():
