@@ -18,18 +18,21 @@ class DrawingApp:
 
         self.last_x, self.last_y = None, None
         self.pen_color = 'black'
-        self.palette_color = 'white'   # начальный цвет палитры
+        self.palette_color = 'white'  # начальный цвет палитры
+        self.fon_color = 'white'
 
         self.setup_ui()
 
         self.canvas.bind('<B1-Motion>', self.paint)
         self.canvas.bind('<ButtonRelease-1>', self.reset)
         self.canvas.bind('<Button-3>', self.pick_color)  # привязка функции выбора цвета с палитры к правой кнопке мыши.
+        self.canvas.bind('<Button-1>', self.motion)      # кнопка фиксирует расположение текста на холсте
 
         self.root.bind('<Control-s>', self.save_image)  # горячая клавиша для сохранения
         self.root.bind('<Control-c>', self.choose_color)  # горячая клавиша вызова меню выбора цвета
 
         self.memory_color = []  # список - ячейка памяти - сохраняет цвет кисти
+        self.memory_text = ['',]   # список - ячейка памяти - сохраняет текст
 
     def setup_ui(self):
         control_frame = tk.Frame(self.root)
@@ -60,12 +63,19 @@ class DrawingApp:
         rubber_button.pack(side=tk.LEFT)
 
         # Кнопка для вызова меню выбора размеров холста
-        win_size_button = tk.Button(control_frame, text="Выбор размера холста", command=self.window_size)
+        win_size_button = tk.Button(control_frame, text="Размер холста", command=self.window_size)
         win_size_button.pack(side=tk.LEFT)
 
+        # Кнопка для вызова диалогового окна для ввода текста
+        text_button = tk.Button(control_frame, text='Текст', command=self.input_text)
+        text_button.pack(side=tk.LEFT)
+
+        fon_button = tk.Button(control_frame, text='Выбрвть фон', command=self.choice_fon)
+        fon_button.pack(side=tk.LEFT)
+
         # палитра расположена в нижней части "холста"
-        self.palette = tk.Label(self.root, text='Палитра для просмотра цвета кисти', bg=self.palette_color , width=86,
-                           height=2)
+        self.palette = tk.Label(self.root, text='Палитра для просмотра цвета кисти', bg=self.palette_color, width=90,
+                                height=2)
         self.palette.pack(side=tk.LEFT)
 
     def paint(self, event):
@@ -144,7 +154,6 @@ class DrawingApp:
     def update_palette(self):
         self.palette_color = self.palette.config(bg=self.pen_color)
 
-
     def window_size(self):
         '''
         Функция открывает последовательно два диалоговых окна в которых
@@ -152,12 +161,31 @@ class DrawingApp:
         Потом создает новый холст с указанными размерами.
         '''
         new_height = simpledialog.askinteger('Размер холста', 'Введите высоту холста: ')
-        new_width = simpledialog.askinteger('Размер холста','Введите ширину холста:  ')
-        self.canvas.config(width= new_width, height= new_height)
+        new_width = simpledialog.askinteger('Размер холста', 'Введите ширину холста:  ')
+        self.canvas.config(width=new_width, height=new_height)
         self.image = Image.new("RGB", (new_width, new_height), "white")
         self.draw = ImageDraw.Draw(self.image)
 
+    def input_text(self):
+        '''
+        Функция вызова диалогового окна и сохранения текста
+        '''
+        self.text_user = simpledialog.askstring('Ввод текста', 'Текст: ')
+        self.memory_text.append(self.text_user)
 
+
+    def motion(self, event):
+        '''
+        Функция добавляет текст в выбранное место
+        '''
+        x, y = event.x, event.y
+        self.canvas.create_text(x, y, text=self.memory_text[-1], fill=self.pen_color)
+        self.draw.text((x, y), self.memory_text[-1], fill=self.pen_color)
+
+
+    def choice_fon(self):
+        self.fon_color = colorchooser.askcolor(color=self.fon_color)[1]
+        self.canvas.config(background=self.fon_color)
 
 def main():
     root = tk.Tk()
