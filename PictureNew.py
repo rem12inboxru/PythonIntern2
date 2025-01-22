@@ -70,6 +70,7 @@ class DrawingApp:
         text_button = tk.Button(control_frame, text='Текст', command=self.input_text)
         text_button.pack(side=tk.LEFT)
 
+        # Кнопка выбора цвета фона
         fon_button = tk.Button(control_frame, text='Выбрвть фон', command=self.choice_fon)
         fon_button.pack(side=tk.LEFT)
 
@@ -184,6 +185,9 @@ class DrawingApp:
 
 
     def choice_fon(self):
+        '''
+        Функция позволяет выбрать цвет фона
+        '''
         self.fon_color = colorchooser.askcolor(color=self.fon_color)[1]
         self.canvas.config(background=self.fon_color)
 
